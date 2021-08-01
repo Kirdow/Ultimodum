@@ -1,0 +1,13 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="All rights reserved"
+
+[[mods]]
+modId="ktnultimod"
+version="1.16.5-1.0.0"
+displayName="Ultimodum"
+description='''
+Adds in-game client side modding using Lua.
+
+Created by Kirdow and inspired by AddOns in World of Warcraft.
+'''
