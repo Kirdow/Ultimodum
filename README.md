@@ -1,5 +1,5 @@
 <p align="center">
-    <img alt="Ultimodum" src="https://raw.githubusercontent.com/Kirdow/Ultimodum/master/assoc-files/images/logo256.png">
+    <a href="https://github.com/Kirdow/Ultimodum/releases"><img alt="Ultimodum" src="https://raw.githubusercontent.com/Kirdow/Ultimodum/master/assoc-files/images/logo256.png"></a>
     <br>
     <a href="https://github.com/Kirdow/Ultimodum/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/Kirdow/Ultimodum"></a>
     <a href="https://github.com/Kirdow/Ultimodum/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Kirdow/Ultimodum"></a>
