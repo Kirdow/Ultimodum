@@ -1,6 +1,10 @@
-<!--<p align="center">
-    <h1 style="font: sans-serif;font-size: 32px;">Ultimodum</h1>
-</p>-->
+<p align="center">
+    <img alt="Ultimodum" src="https://raw.githubusercontent.com/Kirdow/Ultimodum/master/assoc-files/images/logo256.png">
+    <br>
+    <a href="https://github.com/Kirdow/Ultimodum/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/Kirdow/Ultimodum"></a>
+    <a href="https://github.com/Kirdow/Ultimodum/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Kirdow/Ultimodum"></a>
+    <a href="https://github.com/Kirdow/Ultimodum/blob/master/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/Kirdow/Ultimodum"></a>
+</p>
 
 About Ultimodum
 ========
