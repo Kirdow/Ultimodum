@@ -1,6 +1,9 @@
 package com.kirdow.ultimodum.proxy;
 
+import com.kirdow.ultimodum.core.lua.LuaBase;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,11 +33,15 @@ public class ClientProxy {
         }
     }
 
+    private AddonEventProxy eventProxy;
+
     public ClientProxy() {
+        eventProxy = new AddonEventProxy(this);
     }
 
     public void registerEvents() {
         registerComponentWithEvents(ClientProxy.class, this, true);
+        registerComponentWithEvents(AddonEventProxy.class, eventProxy, false);
     }
 
 }

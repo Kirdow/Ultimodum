@@ -4,8 +4,10 @@ import com.kirdow.ultimodum.Ultimodum;
 import com.kirdow.ultimodum.core.lua.lib.LuaEvent;
 import com.kirdow.ultimodum.core.lua.lib.LuaInclude;
 import com.kirdow.ultimodum.util.FileUtil;
+import net.minecraft.client.Minecraft;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.OneArgFunction;
+import org.luaj.vm2.lib.ZeroArgFunction;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
 import java.io.File;
@@ -22,6 +24,28 @@ public class LuaBase {
 
     private LuaBase() {
         globals = JsePlatform.standardGlobals();
+        globals.set("getMinecraft", new ZeroArgFunction() {
+            @Override
+            public LuaValue call() {
+                return LuaObject.of(Minecraft.getInstance());
+            }
+        });
+
+        globals.set("getClass", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                if (!arg.isstring())
+                    return LuaValue.NIL;
+
+                String className = toObject(arg).toString();
+                try {
+                    Class<?> clazz = Class.forName(className);
+                    return LuaObject.of(clazz);
+                } catch (Throwable ignored) {
+                    return LuaValue.NIL;
+                }
+            }
+        });
     }
 
     public void detectAddons() {
@@ -55,23 +79,19 @@ public class LuaBase {
         for (LuaAddon addon : this.addonList) {
             includeFunc.setAddon(addon);
             eventFunc.setAddon(addon);
-
-            String scriptSource = FileUtil.loadLuaFile(addon.getMainFile()).trim();
-            if (scriptSource.length() == 0) continue;
-            LuaValue chunk = globals.load(scriptSource);
+            LuaValue chunk = globals.loadfile(addon.getMainFile().getPath());
             Ultimodum.debug("Calling '%s' for addon '%s'", addon.getMainFile().getName(), addon.getName());
-            chunk.call();
+            chunk.invoke(addon.getAddonArgs());
         }
 
         includeFunc.reset();
 
         for (LuaAddon addon : this.addonList) {
             for (File addonFile : addon.getFiles()) {
-                String scriptSource = FileUtil.loadLuaFile(addonFile).trim();
-                if (scriptSource.length() == 0) continue;
-                LuaValue chunk = globals.load(scriptSource);
+
+                LuaValue chunk = globals.loadfile(addonFile.getPath());
                 Ultimodum.debug("Calling included file '%s' for addon '%s'", addon.getFileName(addonFile), addon.getName());
-                chunk.call();
+                chunk.invoke(addon.getAddonArgs());
             }
         }
     }
@@ -119,6 +139,17 @@ public class LuaBase {
 
         Ultimodum.log("Addon Load Complete");
         addonLoadComplete();
+    }
+
+    public boolean postEvent(String name, Object... args) {
+        boolean result = false;
+
+        for (LuaAddon addon : addonList) {
+            if (addon.postEvent(name, args))
+                result = true;
+        }
+
+        return result;
     }
 
     public static final LuaBase get() {

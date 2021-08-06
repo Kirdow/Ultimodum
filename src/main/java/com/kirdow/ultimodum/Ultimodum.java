@@ -76,8 +76,6 @@ public class Ultimodum {
         LuaBase base = LuaBase.get();
         base.setup();
 
-        System.exit(0);
-
         clientProxy = new ClientProxy();
         clientProxy.registerEvents();
 
