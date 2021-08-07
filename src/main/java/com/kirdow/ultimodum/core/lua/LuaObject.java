@@ -21,7 +21,7 @@ public class LuaObject {
         return id.toString();
     }
 
-    private static Object get(String id) {
+    public static Object get(String id) {
         return REF_MAP.getOrDefault(UUID.fromString(id), null);
     }
 
@@ -80,6 +80,10 @@ public class LuaObject {
                                         method = m;
                                         break;
                                     }
+
+                                    if (parTypes.length != objs.length)
+                                        continue;
+
                                     boolean failed = false;
 
                                     for (int i = 0; i < objs.length; i++) {
