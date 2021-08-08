@@ -4,6 +4,7 @@ import com.kirdow.ultimodum.core.lua.LuaBase;
 import com.kirdow.ultimodum.core.lua.lib.data.event.LuaChatReceiveEvent;
 import com.kirdow.ultimodum.core.lua.lib.data.event.LuaGuiOpenEvent;
 import com.kirdow.ultimodum.core.lua.lib.data.event.LuaOverlayEvent;
+import com.kirdow.ultimodum.util.ThreadUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.Color;
@@ -110,11 +111,11 @@ public class AddonEventProxy {
 
                 reloadThread = new Thread(() -> {
                     try {
-                        Minecraft.getInstance().tell(() ->  {
+                        ThreadUtil.runOnMainThread(() -> {
                             Minecraft.getInstance().gui.getChat().addMessage(new StringTextComponent(String.format("%sReloading addons...", TextFormatting.GREEN)));
                         });
                         LuaBase.get().reload();
-                        Minecraft.getInstance().tell(() -> {
+                        ThreadUtil.runOnMainThread(() -> {
                             Minecraft.getInstance().gui.getChat().addMessage(new StringTextComponent(String.format("%sAddons reloaded!", TextFormatting.GREEN)));
                         });
                     } finally {

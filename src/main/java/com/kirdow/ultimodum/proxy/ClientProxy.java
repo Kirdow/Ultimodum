@@ -1,6 +1,7 @@
 package com.kirdow.ultimodum.proxy;
 
 import com.kirdow.ultimodum.core.lua.LuaBase;
+import com.kirdow.ultimodum.util.Util;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -42,6 +43,8 @@ public class ClientProxy {
     public void registerEvents() {
         registerComponentWithEvents(ClientProxy.class, this, true);
         registerComponentWithEvents(AddonEventProxy.class, eventProxy, false);
+
+        Util.registerEvents();
     }
 
 }
