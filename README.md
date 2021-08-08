@@ -10,6 +10,8 @@ About Ultimodum
 ========
 Ever felt closing the game just to try a new mod was annoying? Well Ultimodum is here to resolve that.
 <br> By the use of Lua, Ultimodum allows you to make your mods within the game itself, without the need to restart the game. It does this by using Lua scripts for the programming, while still giving you the same power Java would to a strong degree.
+<br><br>
+If you've played games like World of Warcraft, you should be fairly familiar with the addon system used there. Ultimodum is a recreation of WoW AddOns within Minecraft.
 
 Setting up the environment
 ========
@@ -32,6 +34,10 @@ Then you should log in to your mojang account in the dialog that shows up.
 Pull Request
 ========
 All pull requests are welcome. While I might not accept all pull requests, don't hesitate to make one if you feel a change or addition is needed. I will look it through and determine if it's worth a merge.
+
+Issues
+========
+If you find anything about the mod that should be changed or fixed, feel free to create an issue, and I'd look into it whenever I can.
 
 License
 ========
