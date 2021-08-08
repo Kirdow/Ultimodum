@@ -1,7 +1,6 @@
 package com.kirdow.ultimodum.util;
 
 import java.io.*;
-import java.util.function.Consumer;
 
 public class Net {
 

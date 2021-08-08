@@ -1,10 +1,7 @@
 package com.kirdow.ultimodum.proxy;
 
-import com.kirdow.ultimodum.core.lua.LuaBase;
 import com.kirdow.ultimodum.util.Util;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.HashMap;
 import java.util.Map;

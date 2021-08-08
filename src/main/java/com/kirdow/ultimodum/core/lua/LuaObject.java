@@ -1,6 +1,5 @@
 package com.kirdow.ultimodum.core.lua;
 
-import net.minecraft.client.Minecraft;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;

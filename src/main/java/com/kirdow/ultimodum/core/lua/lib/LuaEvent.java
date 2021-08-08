@@ -2,7 +2,6 @@ package com.kirdow.ultimodum.core.lua.lib;
 
 import com.kirdow.ultimodum.Ultimodum;
 import com.kirdow.ultimodum.core.lua.LuaAddon;
-import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.ZeroArgFunction;
 

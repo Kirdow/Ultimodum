@@ -4,7 +4,6 @@ import com.kirdow.ultimodum.Ultimodum;
 import com.kirdow.ultimodum.core.lua.lib.LuaEvent;
 import com.kirdow.ultimodum.core.lua.lib.LuaInclude;
 import com.kirdow.ultimodum.core.lua.lib.data.ILuaObject;
-import com.kirdow.ultimodum.util.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.util.text.StringTextComponent;
@@ -19,8 +18,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
