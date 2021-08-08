@@ -32,6 +32,8 @@ public class LuaBase {
     private LuaValue addonPrint;
     private boolean debugMode;
 
+    private final Object mutex = new Object();
+
     private LuaBase() {
         globals = JsePlatform.standardGlobals();
         setGlobals();
@@ -360,20 +362,60 @@ public class LuaBase {
         addonLoadComplete();
     }
 
-    public boolean postEvent(String name, Object... args) {
-        boolean result = false;
+    public void reload() {
+        synchronized (mutex) {
+            Ultimodum.log("Reloading addons");
 
-        setGlobals();
-        for (LuaAddon addon : addonList) {
-            try {
-                if (addon.postEvent(name, args))
-                    result = true;
-            } catch (Throwable th) {
-                th.printStackTrace();
+            Ultimodum.log("Disposing loaded addons");
+            // dispose addons
+            for (LuaAddon addon : addonList) {
+                addon.dispose();
             }
-        }
 
-        return result;
+            Ultimodum.log("Unloading addons");
+            // Clear list
+            addonList.clear();
+            addonList = null;
+
+            Ultimodum.log("Resetting lua global");
+            // Reset data and globals
+            globalPrint = null;
+            addonPrint = null;
+            debugMode = false;
+            globals = null;
+
+            Ultimodum.log("Creating new lua global");
+            // Recreate globals
+            globals = JsePlatform.standardGlobals();
+
+            Ultimodum.log("Setting lua globals");
+            // Set globals
+            setGlobals();
+
+            Ultimodum.log("Loading addons");
+            // Load/Init addons
+            setup();
+
+            Ultimodum.log("Addon Reload complete!");
+        }
+    }
+
+    public boolean postEvent(String name, Object... args) {
+        synchronized (mutex) {
+            boolean result = false;
+
+            setGlobals();
+            for (LuaAddon addon : addonList) {
+                try {
+                    if (addon.postEvent(name, args))
+                        result = true;
+                } catch (Throwable th) {
+                    th.printStackTrace();
+                }
+            }
+
+            return result;
+        }
     }
 
     public static final LuaBase get() {

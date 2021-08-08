@@ -6,7 +6,11 @@ import com.kirdow.ultimodum.core.lua.lib.data.event.LuaGuiOpenEvent;
 import com.kirdow.ultimodum.core.lua.lib.data.event.LuaOverlayEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.util.text.Color;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -17,6 +21,8 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.ZeroArgFunction;
+
+import javax.swing.text.AttributeSet;
 
 public class AddonEventProxy {
 
@@ -85,6 +91,42 @@ public class AddonEventProxy {
             return;
 
         luaBase.postEvent("Overlay", new LuaOverlayEvent());
+    }
+
+    @SubscribeEvent
+    public void onPreChat(ClientChatEvent event) {
+        if (filterReloadCommand(event)) return;
+    }
+
+    private Thread reloadThread = null;
+    private final Object reloadThreadMutex = new Object();
+    private boolean filterReloadCommand(ClientChatEvent event) {
+        if (event.getMessage().equalsIgnoreCase("/rl")) {
+            event.setCanceled(true);
+            synchronized (reloadThreadMutex) {
+                if (reloadThread != null) {
+                    return true;
+                }
+
+                reloadThread = new Thread(() -> {
+                    try {
+                        Minecraft.getInstance().tell(() ->  {
+                            Minecraft.getInstance().gui.getChat().addMessage(new StringTextComponent(String.format("%sReloading addons...", TextFormatting.GREEN)));
+                        });
+                        LuaBase.get().reload();
+                        Minecraft.getInstance().tell(() -> {
+                            Minecraft.getInstance().gui.getChat().addMessage(new StringTextComponent(String.format("%sAddons reloaded!", TextFormatting.GREEN)));
+                        });
+                    } finally {
+                        reloadThread = null;
+                    }
+                });
+                reloadThread.start();
+            }
+            return true;
+        }
+
+        return false;
     }
 
 }

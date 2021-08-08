@@ -1,5 +1,6 @@
 package com.kirdow.ultimodum.core.lua.lib.data;
 
+import com.kirdow.ultimodum.Ultimodum;
 import com.kirdow.ultimodum.core.lua.LuaAddon;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
@@ -18,6 +19,20 @@ public class LuaEventCallback {
         this.name = name;
 
         callbacks = new ArrayList<>();
+    }
+
+    public void dispose() {
+        String callbackName = name;
+        Ultimodum.log("Disposing '%s' callbacks for addon '%s'", callbackName, addon.getName());
+
+        // Clear ref data;
+        addon = null;
+        name = null;
+
+        // Clear callbacks
+        callbacks.clear();
+
+        Ultimodum.log("Dispose complete for '%s' callbacks!", callbackName);
     }
 
     public boolean addCallback(LuaValue callback) {
