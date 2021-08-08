@@ -4,6 +4,7 @@ import com.kirdow.ultimodum.Ultimodum;
 import com.kirdow.ultimodum.core.lua.lib.LuaEvent;
 import com.kirdow.ultimodum.core.lua.lib.LuaInclude;
 import com.kirdow.ultimodum.core.lua.lib.data.ILuaObject;
+import com.kirdow.ultimodum.core.lua.lib.data.globals.GlobalManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IngameGui;
 import net.minecraft.util.text.StringTextComponent;
@@ -19,6 +20,7 @@ import java.io.FileFilter;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class LuaBase {
@@ -32,6 +34,9 @@ public class LuaBase {
     private final Object mutex = new Object();
 
     private LuaBase() {
+    }
+
+    private void init() {
         globals = JsePlatform.standardGlobals();
         setGlobals();
     }
@@ -59,126 +64,6 @@ public class LuaBase {
                         return LuaObject.of(clazz);
                     } catch (Throwable ignored) {
                         return LuaValue.NIL;
-                    }
-                }
-            });
-        }
-
-        if (!globals.get("defineClass").isfunction()) {
-            globals.set("defineClass", new TwoArgFunction() {
-                @Override
-                public LuaValue call(LuaValue lClassDef, LuaValue lClassName) {
-                    if (!lClassDef.isstring() || !lClassName.isstring())
-                        return LuaValue.FALSE;
-
-                    String classDef = lClassDef.tojstring();
-                    String className = lClassName.tojstring();
-                    try {
-                        Class<?> clazz = Class.forName(classDef);
-                        LuaValue obj = LuaObject.of(clazz);
-                        obj.set("new", new VarArgFunction() {
-                            @Override
-                            public Varargs invoke(Varargs args) {
-
-                                try {
-                                    Constructor constructor = null;
-                                    Object[] objects = null;
-                                    for (Constructor c : clazz.getDeclaredConstructors()) {
-                                        Object[] objs = LuaBase.toObjects(args, 1);
-                                        Class[] parTypes = c.getParameterTypes();
-                                        if (objs.length == 0 && parTypes.length == 1 && parTypes[0].isArray()) {
-                                            objects = new Object[]{
-                                                    Array.newInstance(parTypes[0].getComponentType(), 0)
-                                            };
-                                            constructor = c;
-                                            break;
-                                        }
-
-                                        if (parTypes.length != objs.length)
-                                            continue;
-
-                                        boolean failed = false;
-
-                                        for (int i = 0; i < objs.length; i++) {
-                                            if (objs[i] instanceof Map) {
-                                                LuaValue value = args.arg(i + 1);
-                                                if (!value.istable() || !value.get("__refid").isstring()) {
-                                                    failed = true;
-                                                    break;
-                                                }
-
-                                                String str = (String) LuaBase.toObject(value.get("__refid"));
-
-                                                Object ref = LuaObject.get(str);
-                                                if (ref == null) {
-                                                    failed = true;
-                                                    break;
-                                                }
-
-                                                objs[i] = ref;
-                                            }
-                                        }
-
-                                        if (failed)
-                                            continue;
-
-                                        for (int i = 0; i < objs.length; i++) {
-                                            if (objs[i] instanceof Number) {
-                                                Number num = (Number) objs[i];
-                                                if (parTypes[i] == int.class)
-                                                    objs[i] = num.intValue();
-                                                else if (parTypes[i] == float.class)
-                                                    objs[i] = num.floatValue();
-                                                else if (parTypes[i] == double.class)
-                                                    objs[i] = num.doubleValue();
-                                                else if (parTypes[i] == long.class)
-                                                    objs[i] = num.longValue();
-                                                else if (parTypes[i] == short.class)
-                                                    objs[i] = num.shortValue();
-                                                else if (parTypes[i] == byte.class)
-                                                    objs[i] = num.byteValue();
-                                                else if (parTypes[i] == boolean.class)
-                                                    objs[i] = num.intValue() == 1;
-                                                else if (parTypes[i] == char.class)
-                                                    objs[i] = (char) num.shortValue();
-                                                else {
-                                                    failed = true;
-                                                    break;
-                                                }
-                                            } else if (!parTypes[i].isAssignableFrom(objs[i].getClass())) {
-                                                failed = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if (failed)
-                                            continue;
-
-                                        constructor = c;
-                                        objects = objs;
-                                    }
-
-                                    LuaValue lResult = LuaValue.NIL;
-                                    if (constructor != null && objects != null) {
-                                        constructor.setAccessible(true);
-                                        Object result = constructor.newInstance(objects);
-                                        if (result != null)
-                                            lResult = LuaObject.of(result);
-                                    }
-
-                                    return LuaValue.varargsOf(new LuaValue[]{lResult});
-                                } catch (Throwable t) {
-                                    t.printStackTrace();
-                                }
-
-                                return LuaValue.varargsOf(new LuaValue[]{LuaValue.NIL});
-                            }
-                        });
-
-                        globals.set(className, obj);
-                        return LuaValue.TRUE;
-                    } catch (Throwable ignored) {
-                        return LuaValue.FALSE;
                     }
                 }
             });
@@ -241,6 +126,8 @@ public class LuaBase {
                 }
             });
         }
+
+        GlobalManager.registerGlobals();
     }
 
     private void debugChat(String msg) {
@@ -397,6 +284,13 @@ public class LuaBase {
         }
     }
 
+    public void getGlobals(Consumer<Globals> consumer) {
+        if (consumer == null)
+            return;
+
+        consumer.accept(globals);
+    }
+
     public boolean postEvent(String name, Object... args) {
         synchronized (mutex) {
             boolean result = false;
@@ -416,7 +310,11 @@ public class LuaBase {
     }
 
     public static final LuaBase get() {
-        return _inst != null ? _inst : (_inst = new LuaBase());
+        if (_inst != null) return _inst;
+
+        _inst = new LuaBase();
+        _inst.init();
+        return _inst;
     }
 
     private static LuaBase _inst;
