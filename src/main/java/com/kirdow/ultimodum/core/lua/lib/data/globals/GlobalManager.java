@@ -3,6 +3,7 @@ package com.kirdow.ultimodum.core.lua.lib.data.globals;
 import com.kirdow.ultimodum.core.lua.LuaBase;
 import com.kirdow.ultimodum.core.lua.lib.data.ILuaObject;
 import com.kirdow.ultimodum.core.lua.lib.data.globals.apis.GGui;
+import com.kirdow.ultimodum.core.lua.lib.data.globals.apis.GPlayer;
 import com.kirdow.ultimodum.core.lua.lib.data.globals.calls.GReload;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
@@ -76,6 +77,7 @@ public class GlobalManager {
     public static void registerGlobals() {
         inst.registerGlobalCall(GReload.class);
         inst.registerGlobalObject("gui", GGui.class);
+        inst.registerGlobalObject("player", GPlayer.class);
     }
 
 }
