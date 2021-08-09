@@ -1,7 +1,14 @@
 package com.kirdow.ultimodum.proxy;
 
+import com.kirdow.ultimodum.Ultimodum;
+import com.kirdow.ultimodum.core.ModFilter;
 import com.kirdow.ultimodum.util.Util;
+import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.spongepowered.asm.mixin.injection.Inject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +49,13 @@ public class ClientProxy {
         registerComponentWithEvents(AddonEventProxy.class, eventProxy, false);
 
         Util.registerEvents();
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onGuiOpen(GuiOpenEvent event) {
+        if (event.getGui() instanceof MainMenuScreen) {
+            ModFilter.validate();
+        }
     }
 
 }
